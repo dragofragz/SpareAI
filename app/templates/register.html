@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — SpareAI{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-10">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-6">
+        <div class="text-center">
+            <h1 class="text-2xl font-black text-primary">Create Account</h1>
+            <p class="text-xs text-gray-500 mt-1">Join SpareAI to diagnose vehicle faults or sell spare parts</p>
+        </div>
+
+        {% if error %}
+        <div class="p-3 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/register" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Account Type</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-accent text-xs">
+                        <input type="radio" name="role" value="customer" checked class="text-accent focus:ring-accent">
+                        <span class="ml-2 font-semibold text-gray-800">Vehicle Owner</span>
+                    </label>
+                    <label class="flex items-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-emerald-600 text-xs">
+                        <input type="radio" name="role" value="supplier" class="text-emerald-600 focus:ring-emerald-600">
+                        <span class="ml-2 font-semibold text-gray-800">Parts Supplier</span>
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label for="name" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Full Name / Merchant Representative</label>
+                <input type="text" id="name" name="name" required placeholder="e.g. Rahul Nair"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div>
+                <label for="email" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="name@example.com"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div>
+                <label for="contact" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Phone Contact (Optional)</label>
+                <input type="text" id="contact" name="contact" placeholder="+91 98470 12345"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label for="password" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6" placeholder="Min 6 chars"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                </div>
+
+                <div>
+                    <label for="confirm_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required minlength="6" placeholder="Re-enter password"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-primary text-white py-3 rounded-lg text-xs font-bold hover:bg-slate-700 transition shadow-sm mt-2">
+                Register &amp; Continue &rarr;
+            </button>
+        </form>
+
+        <div class="text-center text-xs text-gray-500 pt-2 border-t border-gray-100">
+            Already have an account?
+            <a href="/login" class="text-accent font-bold hover:underline">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

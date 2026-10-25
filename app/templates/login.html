@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — SpareAI{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-10">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-6">
+        <!-- Brand Header -->
+        <div class="text-center">
+            <h1 class="text-2xl font-black text-primary">Sign In to SpareAI</h1>
+            <p class="text-xs text-gray-500 mt-1">Select your account role to access your dedicated workspace</p>
+        </div>
+
+        <!-- Role Switcher Pills -->
+        <div class="flex p-1 bg-gray-100 rounded-lg text-xs font-semibold">
+            <button type="button" id="tab-customer" onclick="selectRole('customer')"
+                    class="flex-1 py-1.5 rounded-md transition text-center bg-white text-gray-900 shadow-sm">
+                Vehicle Owner
+            </button>
+            <button type="button" id="tab-supplier" onclick="selectRole('supplier')"
+                    class="flex-1 py-1.5 rounded-md transition text-center text-gray-600 hover:text-gray-900">
+                Shop Supplier
+            </button>
+            <a href="/admin/login"
+               class="flex-1 py-1.5 rounded-md transition text-center text-slate-700 hover:bg-slate-900 hover:text-white flex items-center justify-center space-x-1">
+                <span>Admin</span>
+                <span class="text-[10px]">🔒</span>
+            </a>
+        </div>
+
+        {% if error %}
+        <div class="p-3 rounded-lg text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/login" method="POST" class="space-y-4">
+            <div>
+                <label for="email" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
+                    Email Address
+                </label>
+                <input type="email" id="email" name="email" required
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-sm">
+            </div>
+
+            <div>
+                <label for="password" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
+                    Password
+                </label>
+                <input type="password" id="password" name="password" required
+                       class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-sm">
+            </div>
+
+            <button type="submit" id="submit-btn"
+                    class="w-full bg-primary text-white py-3 rounded-lg text-xs font-bold hover:bg-slate-700 transition shadow-sm">
+                Sign In to Account
+            </button>
+        </form>
+
+        <!-- Quick 1-Click Demo Credentials Buttons for Teacher Evaluation -->
+        <div class="pt-4 border-t border-gray-100 space-y-2">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-center">
+                1-Click Demo Fill for Presentation:
+            </span>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <button type="button" onclick="fillCustomerDemo()"
+                        class="p-2 rounded bg-blue-50 border border-blue-200 text-blue-800 text-[11px] font-semibold hover:bg-blue-100 transition text-left">
+                    <span class="font-bold block">Vehicle Owner</span>
+                    <span class="text-[10px] opacity-75 font-mono">demo@example.com</span>
+                </button>
+                <button type="button" onclick="fillSupplierDemo()"
+                        class="p-2 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold hover:bg-emerald-100 transition text-left">
+                    <span class="font-bold block">Parts Supplier</span>
+                    <span class="text-[10px] opacity-75 font-mono">supplier@example.com</span>
+                </button>
+            </div>
+            <div class="text-center pt-1">
+                <a href="/admin/login" class="text-[11px] text-slate-700 hover:text-black font-semibold inline-flex items-center space-x-1">
+                    <span>Switch to Enterprise Administrator Login Portal &rarr;</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="text-center text-xs text-gray-500 pt-2">
+            Don't have an account?
+            <a href="/register" class="text-accent font-bold hover:underline">Register New Account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function selectRole(role) {
+        const tabCustomer = document.getElementById('tab-customer');
+        const tabSupplier = document.getElementById('tab-supplier');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (role === 'supplier') {
+            tabSupplier.className = 'flex-1 py-1.5 rounded-md transition text-center bg-white text-emerald-800 shadow-sm font-bold';
+            tabCustomer.className = 'flex-1 py-1.5 rounded-md transition text-center text-gray-600 hover:text-gray-900';
+            submitBtn.className = 'w-full bg-emerald-700 text-white py-3 rounded-lg text-xs font-bold hover:bg-emerald-800 transition shadow-sm';
+            submitBtn.textContent = 'Sign In as Spare Parts Supplier';
+            fillSupplierDemo();
+        } else {
+            tabCustomer.className = 'flex-1 py-1.5 rounded-md transition text-center bg-white text-gray-900 shadow-sm font-bold';
+            tabSupplier.className = 'flex-1 py-1.5 rounded-md transition text-center text-gray-600 hover:text-gray-900';
+            submitBtn.className = 'w-full bg-primary text-white py-3 rounded-lg text-xs font-bold hover:bg-slate-700 transition shadow-sm';
+            submitBtn.textContent = 'Sign In to Account';
+            fillCustomerDemo();
+        }
+    }
+
+    function fillCustomerDemo() {
+        document.getElementById('email').value = 'demo@example.com';
+        document.getElementById('password').value = 'demo123';
+    }
+
+    function fillSupplierDemo() {
+        document.getElementById('email').value = 'supplier@example.com';
+        document.getElementById('password').value = 'supplier123';
+    }
+
+    // Check URL query param
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('role') === 'supplier') {
+        selectRole('supplier');
+    }
+</script>
+{% endblock %}

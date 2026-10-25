@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}System Architecture &amp; AI Pipeline — SpareAI{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-10">
+    <!-- Hero / Title -->
+    <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="text-xs font-bold text-accent uppercase tracking-wider">Final Year Engineering Project</span>
+        <h1 class="text-3xl font-extrabold text-primary">System Architecture &amp; Methodology</h1>
+        <p class="text-xs text-gray-500">
+            A Case-Based Reasoning (CBR) and Sentence-BERT (SBERT) driven spare part recommendation and field service platform.
+        </p>
+    </div>
+
+    <!-- AI Architecture Interactive Flow Diagram -->
+    <div class="bg-white rounded-lg p-6 md:p-8 shadow-sm border border-gray-200 space-y-6">
+        <div class="text-center">
+            <h2 class="text-sm font-bold text-primary uppercase tracking-wider">End-to-End Diagnostic &amp; Fulfillment Pipeline</h2>
+            <p class="text-xs text-gray-400 mt-1">Multi-stage retrieval and ranking workflow implemented in SpareAI</p>
+        </div>
+
+        <!-- Flowchart Nodes -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4">
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Stage 1</span>
+                <p class="text-xs font-bold text-primary">Fault Description</p>
+                <p class="text-[11px] text-gray-500">User inputs natural language symptom text</p>
+            </div>
+
+            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-blue-500 uppercase">Stage 2</span>
+                <p class="text-xs font-bold text-accent">SBERT Embedding</p>
+                <p class="text-[11px] text-blue-700">384-dim dense semantic vector (all-MiniLM-L6-v2)</p>
+            </div>
+
+            <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-indigo-500 uppercase">Stage 3</span>
+                <p class="text-xs font-bold text-indigo-900">CBR Case Retrieval</p>
+                <p class="text-[11px] text-indigo-700">Cosine similarity against historical repair database</p>
+            </div>
+
+            <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-purple-500 uppercase">Stage 4</span>
+                <p class="text-xs font-bold text-purple-900">Weighted Voting</p>
+                <p class="text-[11px] text-purple-700">Similarity-weighted aggregation of top-k cases</p>
+            </div>
+
+            <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-amber-500 uppercase">Stage 5</span>
+                <p class="text-xs font-bold text-amber-900">Vehicle Compatibility</p>
+                <p class="text-[11px] text-amber-700">Make, model, and year range rule verification</p>
+            </div>
+
+            <div class="p-4 bg-teal-50 border border-teal-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-teal-500 uppercase">Stage 6</span>
+                <p class="text-xs font-bold text-teal-900">Supplier Stock</p>
+                <p class="text-[11px] text-teal-700">Real-time inventory lookup across distributors</p>
+            </div>
+
+            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-emerald-500 uppercase">Stage 7</span>
+                <p class="text-xs font-bold text-emerald-900">Workshop Locator</p>
+                <p class="text-[11px] text-emerald-700">Haversine GPS ranking &amp; Leaflet mapping</p>
+            </div>
+
+            <div class="p-4 bg-green-50 border border-green-200 rounded-lg text-center space-y-1">
+                <span class="text-[10px] font-bold text-green-600 uppercase">Stage 8</span>
+                <p class="text-xs font-bold text-green-900">Field Service</p>
+                <p class="text-[11px] text-green-700">Direct delivery to workshop or DIY video guide</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Methodology Explanatory Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-2">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-accent"></span>
+                <h3 class="text-sm font-bold text-primary uppercase">Sentence-BERT (SBERT) Embeddings</h3>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                Traditional keyword search fails when vehicle owners use colloquial terms (e.g. &ldquo;thudding when turning over bumps&rdquo; vs &ldquo;worn control arm bushing&rdquo;). We deploy the lightweight <code>all-MiniLM-L6-v2</code> Sentence-BERT transformer model to transform unstructured text into 384-dimensional dense semantic representations where synonymous fault descriptions map to adjacent coordinates in vector space.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-2">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                <h3 class="text-sm font-bold text-primary uppercase">Case-Based Reasoning (CBR)</h3>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                Instead of treating repair prediction as a black-box classification, our CBR engine retrieves the top-k most similar historical repair cases using vector cosine similarity. We apply a domain-specific affinity boost (+0.03 for make match, +0.05 for model match) to prioritize vehicle-specific mechanical nuances.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-2">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-purple-600"></span>
+                <h3 class="text-sm font-bold text-primary uppercase">Similarity-Weighted Voting &amp; Explainability</h3>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                Top retrieved cases vote for their respective solution spare part, weighted by their cosine similarity scores. The user is presented not only with the recommendation, but also with verbatim snippets of the past repair cases that drove the decision (&ldquo;why this was recommended&rdquo;), establishing transparent AI explainability.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-2">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-green-600"></span>
+                <h3 class="text-sm font-bold text-primary uppercase">Unified Multi-Supplier &amp; Service Network</h3>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                When a local service center or workshop faces stockouts, the platform scans nearby distributor inventories, calculates great-circle road distances using the Haversine formula, and allows one-click dispatch either to the customer&rsquo;s doorstep or directly to a designated workshop for installation.
+            </p>
+        </div>
+    </div>
+
+    <!-- Academic Base Paper Citation Card -->
+    <div class="bg-slate-900 text-white rounded-lg p-6 md:p-8 space-y-3">
+        <span class="text-xs uppercase font-bold text-accent tracking-wider">Literature Benchmark</span>
+        <h3 class="text-lg font-bold">Base Research Paper</h3>
+        <p class="text-xs text-gray-300 italic font-serif">
+            Schiavo, F., et al., &ldquo;On Predicting Spare Parts for Field Services by Leveraging Fault Description and Historical Repairing Data&rdquo;, IEEE Access, 2024.
+        </p>
+        <div class="pt-4 border-t border-slate-800 text-xs text-gray-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span>Project: Group 09 · College of Engineering Cherthala</span>
+            <span>Academic Year 2024–2026</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

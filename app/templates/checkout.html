@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout — SpareAI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="pb-4 border-b border-gray-200">
+        <h1 class="text-2xl font-bold text-primary">Checkout &amp; Service Fulfillment</h1>
+        <p class="text-xs text-gray-500 mt-1">Review your spare parts and specify delivery destination or affiliated service centre.</p>
+    </div>
+
+    <form action="/checkout" method="POST" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Left: Delivery & Workshop Selection -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-5">
+                <h2 class="text-base font-bold text-primary">1. Delivery Destination</h2>
+
+                <div>
+                    <label for="address" class="block text-xs font-semibold text-gray-700 mb-1">Shipping Address</label>
+                    <textarea id="address" name="address" rows="3" required
+                              placeholder="House name / flat, street, locality, pin code..."
+                              class="w-full p-2.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-accent focus:outline-none"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100">
+                    <label for="workshop_id" class="block text-xs font-semibold text-gray-700 mb-1">
+                        Optional: Direct-to-Workshop Delivery
+                    </label>
+                    <p class="text-[11px] text-gray-400 mb-2">
+                        Deliver parts directly to an affiliated local workshop so technicians can install them upon arrival.
+                    </p>
+                    <select id="workshop_id" name="workshop_id"
+                            class="w-full p-2 text-xs border border-gray-300 rounded bg-white focus:ring-1 focus:ring-accent focus:outline-none">
+                        <option value="0">Deliver to My Personal Address</option>
+                        {% for w in workshops %}
+                        <option value="{{ w.workshop_id }}">{{ w.name }} ({{ w.address }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 space-y-1">
+                    <span class="font-bold block">Academic Demo Simulation:</span>
+                    <p class="text-[11px]">No actual payment gateway is charged. Placing an order registers it immediately into the order fulfillment database.</p>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-green-600 text-white py-3 rounded-lg text-sm font-bold hover:bg-green-700 transition shadow-sm">
+                    Confirm &amp; Place Order (₹{{ "%.2f"|format(total) }})
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Order Summary Breakdown -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-4">
+                <h2 class="text-base font-bold text-primary">2. Order Summary</h2>
+
+                <div class="divide-y divide-gray-100 max-h-80 overflow-y-auto pr-1">
+                    {% for item in cart_items %}
+                    <div class="py-3 flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold text-gray-900">{{ item.part.part_name }}</p>
+                            <p class="text-gray-500 font-mono">Qty: {{ item.qty }} &times; ₹{{ "%.2f"|format(item.part.price) }}</p>
+                        </div>
+                        <span class="font-bold text-gray-800">₹{{ "%.2f"|format(item.subtotal) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="pt-4 border-t border-gray-200 space-y-2 text-xs">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Parts Subtotal:</span>
+                        <span class="font-medium text-gray-900">₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Shipping / Logistics:</span>
+                        <span class="font-semibold text-green-600">FREE</span>
+                    </div>
+                    <div class="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
+                        <span>Total Payable:</span>
+                        <span class="text-accent text-lg">₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

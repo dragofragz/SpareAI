@@ -1,0 +1,32 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest & testing cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments & dependencies
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE & Editor caches
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS temporary files
+.DS_Store
+Thumbs.db
+
+# Databases & local binary documents
+*.db
+*.sqlite
+*.sqlite3
+*.pdf

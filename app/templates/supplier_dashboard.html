@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}Supplier Merchant Portal — {{ supplier.name if supplier else 'Register Shop' }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+    {% if not has_shop %}
+    <!-- Shop Onboarding Screen -->
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-6">
+        <div class="text-center space-y-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                Supplier Registration
+            </span>
+            <h1 class="text-2xl font-bold text-primary">Register Your Spare Parts Shop</h1>
+            <p class="text-xs text-gray-500 max-w-md mx-auto">
+                Join the SpareAI multi-distributor field service network. Enter your shop details to begin listing genuine parts and appearing on the live workshop &amp; supplier map.
+            </p>
+        </div>
+
+        <form action="/supplier/shop/setup" method="POST" class="space-y-4 pt-2">
+            <div>
+                <label for="setup-name" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
+                    Shop / Distributor Business Name
+                </label>
+                <input type="text" id="setup-name" name="name" required
+                       placeholder="e.g. Cherthala Central Auto Spares"
+                       class="w-full px-3 py-2.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div>
+                <label for="setup-address" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
+                    Physical Address &amp; Locality
+                </label>
+                <textarea id="setup-address" name="address" rows="3" required
+                          placeholder="e.g. Near Private Bus Stand, Court Junction, Cherthala, Kerala 688524"
+                          class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none"></textarea>
+            </div>
+
+            <div>
+                <label for="setup-contact" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
+                    Direct Contact Phone Number
+                </label>
+                <input type="text" id="setup-contact" name="contact" required
+                       placeholder="+91 98470 54321"
+                       class="w-full px-3 py-2.5 text-xs font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <div>
+                    <label for="setup-lat" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Latitude</label>
+                    <input type="number" step="0.0001" id="setup-lat" name="lat" required value="9.6885"
+                           class="w-full px-3 py-2 text-xs font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                </div>
+                <div>
+                    <label for="setup-lng" class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Longitude</label>
+                    <input type="number" step="0.0001" id="setup-lng" name="lng" required value="76.3320"
+                           class="w-full px-3 py-2 text-xs font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] text-emerald-800 space-y-1">
+                <span class="font-bold">Geolocation Presets:</span>
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <button type="button" onclick="setSetupCoords(9.6885, 76.3320)" class="bg-white px-2 py-1 rounded border border-emerald-300 hover:bg-emerald-100 font-mono">Cherthala (9.6885, 76.3320)</button>
+                    <button type="button" onclick="setSetupCoords(9.4981, 76.3388)" class="bg-white px-2 py-1 rounded border border-emerald-300 hover:bg-emerald-100 font-mono">Alappuzha (9.4981, 76.3388)</button>
+                    <button type="button" onclick="setSetupCoords(9.9816, 76.2999)" class="bg-white px-2 py-1 rounded border border-emerald-300 hover:bg-emerald-100 font-mono">Kochi (9.9816, 76.2999)</button>
+                </div>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-emerald-700 text-white py-3 rounded-lg text-xs font-bold hover:bg-emerald-800 transition shadow-sm">
+                Complete Registration &amp; Open Shop Inventory &rarr;
+            </button>
+        </form>
+    </div>
+
+    {% else %}
+    <!-- Active Supplier Portal -->
+
+    <!-- Header Banner -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+                    Verified Parts Supplier
+                </span>
+                <span class="text-xs text-gray-400 font-mono">Shop ID: #{{ supplier.supplier_id }}</span>
+            </div>
+            <h1 class="text-2xl font-black text-gray-900 mt-1">{{ supplier.name }}</h1>
+            <p class="text-xs text-gray-500 mt-0.5">{{ supplier.address }} • <span class="font-mono text-gray-700">{{ supplier.contact }}</span></p>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <a href="/workshops" class="text-xs text-accent hover:underline font-medium">
+                View On Live Map &rarr;
+            </a>
+            <button type="button" onclick="document.getElementById('edit-shop-card').classList.toggle('hidden')"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3.5 py-2 rounded-lg font-bold transition">
+                ✎ Edit Shop Information
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Shop Information Card (Collapsible) -->
+    <div id="edit-shop-card" class="hidden bg-emerald-50/60 rounded-xl p-6 border border-emerald-200 space-y-4">
+        <h2 class="text-sm font-bold text-emerald-950 uppercase tracking-wide">Update Shop Information &amp; GPS Coordinates</h2>
+        <form action="/supplier/shop/update" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Business Name</label>
+                <input type="text" name="name" value="{{ supplier.name }}" required
+                       class="w-full px-3 py-2 text-xs border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Direct Phone Contact</label>
+                <input type="text" name="contact" value="{{ supplier.contact }}" required
+                       class="w-full px-3 py-2 text-xs font-mono border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600">
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-gray-700 mb-1">Physical Address</label>
+                <input type="text" name="address" value="{{ supplier.address }}" required
+                       class="w-full px-3 py-2 text-xs border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Latitude</label>
+                <input type="number" step="0.0001" name="lat" id="edit-lat" value="{{ supplier.lat }}" required
+                       class="w-full px-3 py-2 text-xs font-mono border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Longitude</label>
+                <input type="number" step="0.0001" name="lng" id="edit-lng" value="{{ supplier.lng }}" required
+                       class="w-full px-3 py-2 text-xs font-mono border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600">
+            </div>
+            <div class="md:col-span-2 flex justify-between items-center pt-2">
+                <div class="space-x-2 text-xs">
+                    <button type="button" onclick="setEditCoords(9.6885, 76.3320)" class="text-emerald-700 hover:underline">Cherthala</button>
+                    <span>•</span>
+                    <button type="button" onclick="setEditCoords(9.4981, 76.3388)" class="text-emerald-700 hover:underline">Alappuzha</button>
+                    <span>•</span>
+                    <button type="button" onclick="setEditCoords(9.9816, 76.2999)" class="text-emerald-700 hover:underline">Kochi</button>
+                </div>
+                <button type="submit" class="bg-emerald-700 text-white px-4 py-2 rounded text-xs font-bold hover:bg-emerald-800 transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Inventory KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Shop Catalog SKUs</span>
+            <span class="text-2xl font-black text-gray-900 mt-1 block">{{ stats.total_parts }}</span>
+            <span class="text-[10px] text-gray-400 font-medium mt-1 block">Active listed components</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">In-Stock Items</span>
+            <span class="text-2xl font-black text-emerald-600 mt-1 block">{{ stats.in_stock_parts if stats.in_stock_parts is defined else stats.in_stock }}</span>
+            <span class="text-[10px] text-emerald-700 font-semibold mt-1 block">Ready for customer dispatch</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Out of Stock Alert</span>
+            <span class="text-2xl font-black text-red-600 mt-1 block">{{ stats.out_of_stock }}</span>
+            <span class="text-[10px] text-red-500 font-semibold mt-1 block">Needs immediate replenishment</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Inventory Valuation</span>
+            <span class="text-2xl font-black text-primary mt-1 block">₹{{ "%.0f"|format(stats.total_value) }}</span>
+            <span class="text-[10px] text-gray-400 font-medium mt-1 block">Combined stock value</span>
+        </div>
+    </div>
+
+    <!-- Add New Spare Part Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+                <h2 class="text-base font-bold text-primary">+ Add New Spare Part to Your Inventory</h2>
+                <p class="text-xs text-gray-500 mt-0.5">List a new component for AI symptom matching and online purchase.</p>
+            </div>
+        </div>
+
+        <form action="/supplier/part/add" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Part Name</label>
+                <input type="text" name="part_name" required placeholder="e.g. Front Lower Control Arm"
+                       class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">OEM / Part Code</label>
+                <input type="text" name="oem_code" placeholder="e.g. HYU-54500-1J000"
+                       class="w-full px-2.5 py-1.5 text-xs font-mono border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Category</label>
+                <select name="category" class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded bg-white focus:outline-none">
+                    <option value="Suspension">Suspension</option>
+                    <option value="Braking">Braking</option>
+                    <option value="Transmission">Transmission</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Engine">Engine</option>
+                    <option value="Cooling">Cooling</option>
+                    <option value="Filters">Filters</option>
+                    <option value="Lighting">Lighting</option>
+                    <option value="Controls">Controls</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Unit Price (₹ INR)</label>
+                <input type="number" step="0.01" min="1" name="price" required placeholder="2850.00"
+                       class="w-full px-2.5 py-1.5 text-xs font-mono border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Initial Stock Quantity</label>
+                <input type="number" min="0" name="stock_qty" required value="10"
+                       class="w-full px-2.5 py-1.5 text-xs font-mono border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">DIY Difficulty</label>
+                <select name="difficulty" class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded bg-white focus:outline-none">
+                    <option value="Easy">Easy (Beginner-friendly)</option>
+                    <option value="Medium" selected>Medium (Standard Tools)</option>
+                    <option value="Hard">Hard (Workshop Recommended)</option>
+                </select>
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-gray-700 mb-1">Tools Required Checklist (Comma-separated)</label>
+                <input type="text" name="tools_required" placeholder="17mm socket, floor jack, torque wrench"
+                       class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">YouTube Video ID (Optional)</label>
+                <input type="text" name="video_id" placeholder="e.g. eU1-9yL-i2U"
+                       class="w-full px-2.5 py-1.5 text-xs font-mono border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <!-- Vehicle Fitment Rule -->
+            <div class="md:col-span-3 p-3 bg-gray-50 rounded border border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Compatible Make</label>
+                    <input type="text" name="compatible_make" value="Hyundai"
+                           class="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Compatible Model</label>
+                    <input type="text" name="compatible_model" value="i20"
+                           class="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Year From</label>
+                    <input type="number" name="year_from" value="2014"
+                           class="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-600 uppercase mb-0.5">Year To</label>
+                    <input type="number" name="year_to" value="2025"
+                           class="w-full px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                </div>
+            </div>
+
+            <div class="md:col-span-3 text-right">
+                <button type="submit"
+                        class="bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-emerald-800 transition shadow-sm">
+                    + Add Part to Shop Catalog
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Shop Parts Inventory Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+                <h2 class="text-base font-bold text-primary">Your Shop's Active Spare Parts (Stock &amp; Price Control)</h2>
+                <p class="text-xs text-gray-500 mt-0.5">Update unit quantities and prices in real-time or delete outdated listings.</p>
+            </div>
+            <span class="text-xs text-gray-400 font-mono">{{ parts|length }} parts in inventory</span>
+        </div>
+
+        {% if not parts %}
+        <div class="py-12 text-center text-gray-400 text-xs">
+            No parts currently listed in your shop. Use the "+ Add New Spare Part" form above to start building your inventory.
+        </div>
+        {% else %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-y border-gray-200 text-gray-600 uppercase font-semibold">
+                        <th class="py-3 px-3">Part Details</th>
+                        <th class="py-3 px-3">OEM Code</th>
+                        <th class="py-3 px-3">Category</th>
+                        <th class="py-3 px-3">Stock Status</th>
+                        <th class="py-3 px-3">Live Stock &amp; Price Update</th>
+                        <th class="py-3 px-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for part in parts %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="py-3 px-3 font-semibold text-gray-900">
+                            <a href="/part/{{ part.part_id }}" class="hover:text-accent font-bold">{{ part.part_name }}</a>
+                            <span class="block text-[11px] text-gray-400">{{ part.difficulty }} • Tools: {{ part.tools_required if part.tools_required else 'Standard' }}</span>
+                        </td>
+                        <td class="py-3 px-3 font-mono text-gray-500">{{ part.oem_code }}</td>
+                        <td class="py-3 px-3 text-gray-600">{{ part.category }}</td>
+                        <td class="py-3 px-3">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold
+                                {% if part.stock_qty > 0 %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if part.stock_qty > 0 %}{{ part.stock_qty }} Units{% else %}0 Out of Stock{% endif %}
+                            </span>
+                        </td>
+                        <td class="py-3 px-3">
+                            <form action="/supplier/part/update" method="POST" class="flex items-center space-x-2">
+                                <input type="hidden" name="part_id" value="{{ part.part_id }}">
+                                <div>
+                                    <span class="text-[9px] text-gray-400 block uppercase">Stock</span>
+                                    <input type="number" name="stock_qty" min="0" value="{{ part.stock_qty }}"
+                                           class="w-16 px-1.5 py-1 text-xs border border-gray-300 rounded text-center focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+                                </div>
+                                <div>
+                                    <span class="text-[9px] text-gray-400 block uppercase">Price (₹)</span>
+                                    <input type="number" name="price" step="0.01" min="1" value="{{ part.price }}"
+                                           class="w-20 px-1.5 py-1 text-xs border border-gray-300 rounded text-center focus:ring-1 focus:ring-emerald-600 focus:outline-none">
+                                </div>
+                                <div class="pt-3">
+                                    <button type="submit"
+                                            class="bg-emerald-700 text-white px-2.5 py-1 rounded text-xs font-bold hover:bg-emerald-800 transition">
+                                        Save
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                            <form action="/supplier/part/delete" method="POST" onsubmit="return confirm('Remove this part from your shop inventory?');" class="inline">
+                                <input type="hidden" name="part_id" value="{{ part.part_id }}">
+                                <button type="submit" class="text-xs text-red-500 hover:text-red-700 font-semibold">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function setSetupCoords(lat, lng) {
+        document.getElementById('setup-lat').value = lat;
+        document.getElementById('setup-lng').value = lng;
+    }
+    function setEditCoords(lat, lng) {
+        document.getElementById('edit-lat').value = lat;
+        document.getElementById('edit-lng').value = lng;
+    }
+</script>
+{% endblock %}

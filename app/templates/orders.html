@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders — SpareAI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+        <div>
+            <h1 class="text-2xl font-bold text-primary">Order History &amp; Tracking</h1>
+            <p class="text-xs text-gray-500 mt-0.5">Track your spare parts delivery and workshop fulfillment status.</p>
+        </div>
+        <a href="/dashboard" class="text-xs text-accent hover:underline">← Garage</a>
+    </div>
+
+    {% if not orders %}
+    <div class="bg-white rounded-lg p-12 text-center shadow-sm border border-gray-200 space-y-4">
+        <h2 class="text-base font-bold text-gray-800">No orders placed yet</h2>
+        <p class="text-xs text-gray-500 max-w-sm mx-auto">
+            Once you diagnose a fault and purchase recommended parts, you can monitor live order status here.
+        </p>
+        <div>
+            <a href="/dashboard" class="inline-flex items-center px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-slate-700">
+                Go to Garage
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="space-y-4">
+        {% for order in orders %}
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-gray-300 transition">
+            <div class="space-y-1">
+                <div class="flex items-center space-x-3">
+                    <h3 class="text-base font-bold text-gray-900">Order #{{ order.order_id }}</h3>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold
+                        {% if order.status == 'Placed' %}bg-blue-100 text-blue-800
+                        {% elif order.status == 'Confirmed' %}bg-amber-100 text-amber-800
+                        {% elif order.status == 'Shipped' %}bg-purple-100 text-purple-800
+                        {% elif order.status == 'Delivered' %}bg-green-100 text-green-800
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500">
+                    Placed on {{ order.created_at.strftime('%d %b %Y at %I:%M %p') }} • {{ order.items|length }} item(s)
+                </p>
+                {% if order.workshop %}
+                <p class="text-xs text-accent">
+                    Delivering to workshop: <span class="font-semibold">{{ order.workshop.name }}</span>
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center justify-between md:justify-end space-x-6 pt-3 md:pt-0 border-t md:border-t-0 border-gray-100">
+                <div class="text-right">
+                    <span class="text-xs text-gray-400 block">Total</span>
+                    <span class="text-base font-extrabold text-gray-900">₹{{ "%.2f"|format(order.total) }}</span>
+                </div>
+                <a href="/order/{{ order.order_id }}"
+                   class="bg-primary text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
+                    Track Order &rarr;
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

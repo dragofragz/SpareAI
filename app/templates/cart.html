@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+        <h1 class="text-2xl font-bold text-primary">Your Shopping Cart</h1>
+        <a href="/dashboard" class="text-xs text-accent hover:underline">← Continue Shopping</a>
+    </div>
+
+    {% if not cart_items %}
+    <div class="bg-white rounded-lg p-12 text-center shadow-sm border border-gray-200 space-y-4">
+        <div class="w-12 h-12 mx-auto bg-gray-100 text-gray-400 rounded-full flex items-center justify-center text-xl font-bold">
+            0
+        </div>
+        <h2 class="text-lg font-bold text-gray-800">Your cart is currently empty</h2>
+        <p class="text-xs text-gray-500 max-w-sm mx-auto">
+            Diagnose a fault in your garage or browse parts to add components to your order.
+        </p>
+        <div>
+            <a href="/dashboard" class="inline-flex items-center px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-slate-700">
+                Go to Garage Dashboard
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Cart Items List (2 cols) -->
+        <div class="lg:col-span-2 space-y-4">
+            {% for item in cart_items %}
+            <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <span class="text-[10px] uppercase font-bold text-gray-400">{{ item.part.category }}</span>
+                    <h3 class="text-base font-bold text-gray-900">
+                        <a href="/part/{{ item.part.part_id }}" class="hover:text-accent">{{ item.part.part_name }}</a>
+                    </h3>
+                    <p class="text-xs text-gray-500 font-mono">OEM: {{ item.part.oem_code }}</p>
+                    <p class="text-xs font-semibold text-accent">₹{{ "%.2f"|format(item.part.price) }} each</p>
+                </div>
+
+                <div class="flex items-center space-x-4 self-end sm:self-center">
+                    <!-- Qty update form -->
+                    <form action="/cart/update" method="POST" class="flex items-center space-x-1.5">
+                        <input type="hidden" name="part_id" value="{{ item.part.part_id }}">
+                        <input type="number" name="qty" min="1" max="20" value="{{ item.qty }}"
+                               class="w-14 px-2 py-1 text-xs border border-gray-300 rounded text-center focus:ring-1 focus:ring-accent focus:outline-none">
+                        <button type="submit" class="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded text-gray-700 font-medium">
+                            Update
+                        </button>
+                    </form>
+
+                    <!-- Subtotal -->
+                    <span class="text-sm font-bold text-gray-900 min-w-[70px] text-right">
+                        ₹{{ "%.2f"|format(item.subtotal) }}
+                    </span>
+
+                    <!-- Remove Form -->
+                    <form action="/cart/remove" method="POST">
+                        <input type="hidden" name="part_id" value="{{ item.part.part_id }}">
+                        <button type="submit" class="text-gray-400 hover:text-red-600 transition text-sm" title="Remove item">
+                            &times;
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="space-y-4">
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-4">
+                <h2 class="text-sm font-bold uppercase tracking-wide text-gray-700">Order Summary</h2>
+
+                <div class="space-y-2 text-xs border-b border-gray-100 pb-4">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Items Subtotal:</span>
+                        <span class="font-medium text-gray-900">₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Standard Shipping:</span>
+                        <span class="text-green-600 font-semibold">FREE</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center text-base font-bold text-gray-900">
+                    <span>Total Amount:</span>
+                    <span class="text-xl text-accent">₹{{ "%.2f"|format(total) }}</span>
+                </div>
+
+                <a href="/checkout"
+                   class="w-full inline-flex items-center justify-center bg-accent text-white py-3 rounded-lg text-sm font-semibold hover:bg-blue-700 transition shadow-sm">
+                    Proceed to Checkout &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

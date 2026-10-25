@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.order_id }} Tracking{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+        <div>
+            <span class="text-xs font-semibold text-accent uppercase tracking-wider">Fulfillment Tracking</span>
+            <h1 class="text-2xl font-bold text-primary mt-1">Order #{{ order.order_id }}</h1>
+        </div>
+        <a href="/orders" class="text-xs text-accent hover:underline">← All Orders</a>
+    </div>
+
+    <!-- Live Status Tracker Timeline -->
+    <div class="bg-white rounded-lg p-6 md:p-8 shadow-sm border border-gray-200">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-8 text-center">
+            Live Order Status Timeline
+        </h2>
+
+        <div class="flex items-center justify-between max-w-2xl mx-auto px-4">
+            {% for status in statuses %}
+            <div class="flex flex-col items-center relative z-10">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition
+                    {% if loop.index0 < current_idx %}bg-green-600 text-white shadow-sm
+                    {% elif loop.index0 == current_idx %}bg-accent text-white ring-4 ring-blue-100 shadow-sm
+                    {% else %}bg-gray-100 text-gray-400 border border-gray-200{% endif %}">
+                    {% if loop.index0 < current_idx %}&#10003;{% else %}{{ loop.index }}{% endif %}
+                </div>
+                <span class="text-xs mt-2 font-medium text-center
+                    {% if loop.index0 <= current_idx %}text-gray-900 font-bold{% else %}text-gray-400{% endif %}">
+                    {{ status }}
+                </span>
+            </div>
+            {% if not loop.last %}
+            <div class="flex-1 h-1 mx-2 rounded transition
+                {% if loop.index0 < current_idx %}bg-green-500{% else %}bg-gray-200{% endif %}">
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Presentation Demo Button to advance status in real-time -->
+        {% if order.status != 'Delivered' %}
+        <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50/60 p-4 rounded-lg border border-amber-200">
+            <div>
+                <span class="text-xs font-bold text-amber-900 block">Classroom Presentation Control</span>
+                <p class="text-[11px] text-amber-700">Advance status to demonstrate real-time tracking progression live.</p>
+            </div>
+            <form action="/order/{{ order.order_id }}/advance" method="POST">
+                <button type="submit"
+                        class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-amber-700 shadow-sm transition">
+                    Advance to &ldquo;{{ statuses[current_idx + 1] }}&rdquo; &rarr;
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="mt-8 pt-4 border-t border-gray-100 text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                &#10003; Order Successfully Delivered &amp; Installed
+            </span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Order Metadata & Fulfillment Details -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Order Information</h3>
+            <div class="text-xs space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Date Placed:</span>
+                    <span class="font-medium text-gray-800">{{ order.created_at.strftime('%d %B %Y, %I:%M %p') }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Customer:</span>
+                    <span class="font-medium text-gray-800">{{ order.user.name }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Email:</span>
+                    <span class="font-medium text-gray-800">{{ order.user.email }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Delivery Destination</h3>
+            <div class="text-xs space-y-1">
+                {% if order.workshop %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 uppercase mb-1">
+                    Direct-to-Workshop Fulfillment
+                </span>
+                <p class="font-bold text-gray-900">{{ order.workshop.name }}</p>
+                <p class="text-gray-600">{{ order.workshop.address }}</p>
+                <p class="text-gray-500 font-mono mt-1">Contact: {{ order.workshop.contact }}</p>
+                {% else %}
+                <p class="text-gray-700 font-medium">Personal Residence Address</p>
+                <p class="text-gray-500 italic">Dispatched via Courier Logistics</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        <h3 class="text-sm font-bold text-primary mb-4">Purchased Spare Parts</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-gray-200 text-gray-500 uppercase font-semibold">
+                        <th class="py-2.5 px-3">Item / Component</th>
+                        <th class="py-2.5 px-3">OEM Code</th>
+                        <th class="py-2.5 px-3 text-center">Qty</th>
+                        <th class="py-2.5 px-3 text-right">Unit Price</th>
+                        <th class="py-2.5 px-3 text-right">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for item in order.items %}
+                    <tr>
+                        <td class="py-3 px-3 font-semibold text-gray-900">{{ item.part.part_name }}</td>
+                        <td class="py-3 px-3 font-mono text-gray-500">{{ item.part.oem_code }}</td>
+                        <td class="py-3 px-3 text-center">{{ item.qty }}</td>
+                        <td class="py-3 px-3 text-right text-gray-600">₹{{ "%.2f"|format(item.price) }}</td>
+                        <td class="py-3 px-3 text-right font-bold text-gray-900">₹{{ "%.2f"|format(item.price * item.qty) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="border-t-2 border-gray-200 text-sm font-bold">
+                        <td colspan="4" class="py-3 px-3 text-right text-gray-800">Total:</td>
+                        <td class="py-3 px-3 text-right text-accent font-extrabold">₹{{ "%.2f"|format(order.total) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

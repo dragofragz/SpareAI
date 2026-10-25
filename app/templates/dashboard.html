@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Garage Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Welcome Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-gray-200 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-primary">Welcome, {{ user.name }}</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage your registered vehicles, run AI diagnostics, and track orders.</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                {{ vehicles|length }} Vehicle{% if vehicles|length != 1 %}s{% endif %} Registered
+            </span>
+        </div>
+    </div>
+
+    <!-- Vehicles Section -->
+    <section>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-primary">Your Garage</h2>
+            <span class="text-xs text-gray-400">Select a vehicle to begin diagnostic analysis</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for vehicle in vehicles %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col justify-between hover:border-accent transition">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium uppercase tracking-wider
+                            {% if vehicle.type == 'car' %}bg-indigo-50 text-indigo-700 border border-indigo-200{% else %}bg-amber-50 text-amber-700 border border-amber-200{% endif %}">
+                            {{ vehicle.type }}
+                        </span>
+                        <a href="/vehicle/{{ vehicle.vehicle_id }}/delete" onclick="return confirm('Are you sure you want to remove this vehicle?');"
+                           class="text-xs text-gray-400 hover:text-red-600 transition" title="Delete vehicle">
+                            Remove
+                        </a>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-900">{{ vehicle.make }} {{ vehicle.model }}</h3>
+                    <p class="text-sm text-gray-500 mt-1">Year: <span class="font-medium text-gray-700">{{ vehicle.year }}</span></p>
+                    {% if vehicle.vin %}
+                    <p class="text-xs text-gray-400 mt-1 font-mono">VIN: {{ vehicle.vin }}</p>
+                    {% endif %}
+
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                        <span>{{ vehicle.faults|length }} Past Diagnos{% if vehicle.faults|length == 1 %}is{% else %}es{% endif %}</span>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <a href="/diagnose/{{ vehicle.vehicle_id }}"
+                       class="w-full flex items-center justify-center bg-accent text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+                        Diagnose Problem
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Add Vehicle Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-dashed border-gray-300 p-6">
+                <h3 class="text-base font-semibold text-primary mb-3">Add New Vehicle</h3>
+                <form action="/vehicle/add" method="POST" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Vehicle Type</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center text-xs text-gray-700 cursor-pointer">
+                                <input type="radio" name="vehicle_type" value="car" checked class="text-accent focus:ring-accent">
+                                <span class="ml-1.5">Car (4-Wheeler)</span>
+                            </label>
+                            <label class="inline-flex items-center text-xs text-gray-700 cursor-pointer">
+                                <input type="radio" name="vehicle_type" value="bike" class="text-accent focus:ring-accent">
+                                <span class="ml-1.5">Bike (2-Wheeler)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Make</label>
+                            <input type="text" name="make" required placeholder="e.g. Hyundai"
+                                   class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-accent focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Model</label>
+                            <input type="text" name="model" required placeholder="e.g. i20"
+                                   class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-accent focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Year</label>
+                            <input type="number" name="year" required min="1990" max="2026" value="2021"
+                                   class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-accent focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">VIN (Optional)</label>
+                            <input type="text" name="vin" placeholder="MAL..."
+                                   class="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-accent focus:outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full mt-2 bg-primary text-white py-2 rounded text-xs font-medium hover:bg-slate-700 transition">
+                        + Add Vehicle to Garage
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Diagnoses & Orders Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+        <!-- Recent Diagnoses -->
+        <section class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-base font-semibold text-primary mb-4 flex items-center justify-between">
+                <span>Recent AI Diagnoses</span>
+            </h2>
+            {% if recent_faults %}
+            <div class="space-y-3">
+                {% for fault in recent_faults %}
+                <div class="p-3 rounded-lg border border-gray-100 hover:border-gray-300 bg-gray-50 flex items-start justify-between gap-3 transition">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-semibold text-gray-800">{{ fault.vehicle.make }} {{ fault.vehicle.model }}</span>
+                            <span class="text-xs text-gray-400">• {{ fault.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                        <p class="text-xs text-gray-600 mt-1 line-clamp-2">"{{ fault.description }}"</p>
+                    </div>
+                    <a href="/results/{{ fault.fault_id }}" class="shrink-0 text-xs font-medium text-accent hover:underline">
+                        View Results →
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-400 text-sm">
+                No past diagnoses recorded. Click "Diagnose Problem" on one of your vehicles above.
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Recent Orders -->
+        <section class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-semibold text-primary">Recent Orders</h2>
+                <a href="/orders" class="text-xs text-accent hover:underline">View All</a>
+            </div>
+            {% if recent_orders %}
+            <div class="space-y-3">
+                {% for order in recent_orders %}
+                <div class="p-3 rounded-lg border border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-bold text-gray-800">Order #{{ order.order_id }}</span>
+                            <span class="text-xs text-gray-400">• {{ order.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                        <p class="text-xs font-semibold text-gray-700 mt-1">₹{{ "%.2f"|format(order.total) }}</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                            {% if order.status == 'Placed' %}bg-blue-50 text-blue-700
+                            {% elif order.status == 'Confirmed' %}bg-amber-50 text-amber-700
+                            {% elif order.status == 'Shipped' %}bg-purple-50 text-purple-700
+                            {% elif order.status == 'Delivered' %}bg-green-50 text-green-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ order.status }}
+                        </span>
+                        <a href="/order/{{ order.order_id }}" class="text-xs font-medium text-accent hover:underline">
+                            Track →
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-400 text-sm">
+                No orders placed yet.
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

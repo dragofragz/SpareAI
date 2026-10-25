@@ -1,0 +1,26 @@
+/* SpareAI Custom Styles */
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.confidence-bar {
+    transition: width 0.8s ease-out;
+}
+
+#map {
+    height: 500px;
+    width: 100%;
+    border-radius: 0.5rem;
+}
+
+.flash-message {
+    transition: opacity 0.3s ease;
+}

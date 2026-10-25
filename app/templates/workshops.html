@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Workshops &amp; Suppliers Locator — SpareAI{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
+        <div>
+            <span class="text-xs font-semibold text-accent uppercase tracking-wider">Geographic Field Service Network</span>
+            <h1 class="text-2xl font-bold text-primary mt-1">Workshop &amp; Supplier Locator</h1>
+            <p class="text-xs text-gray-500 mt-0.5">Find verified service workshops and genuine spare parts distributors near you.</p>
+        </div>
+        <div class="flex items-center space-x-2 text-xs">
+            <span class="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-800 border border-blue-200">
+                <span class="w-2 h-2 rounded-full bg-blue-600 mr-1.5"></span> Workshop
+            </span>
+            <span class="inline-flex items-center px-2 py-1 rounded bg-green-50 text-green-800 border border-green-200">
+                <span class="w-2 h-2 rounded-full bg-green-600 mr-1.5"></span> Supplier
+            </span>
+        </div>
+    </div>
+
+    <!-- Leaflet Map Container -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+        <div id="map" class="rounded-lg shadow-inner" style="height: 480px; width: 100%;"></div>
+        <div class="mt-2 text-right text-[11px] text-gray-400">
+            Fallback Center: Cherthala, Alappuzha (9.684&deg; N, 76.335&deg; E)
+        </div>
+    </div>
+
+    <!-- Listings Grid (Workshops & Suppliers) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Workshops Column -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+                <h2 class="text-base font-bold text-primary flex items-center">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600 mr-2"></span> Certified Workshops
+                </h2>
+                <span class="text-xs text-gray-400">{{ workshops|length }} locations</span>
+            </div>
+
+            <div class="space-y-3">
+                {% for item in workshops %}
+                {% set w = item[0] %}
+                {% set dist = item[1] %}
+                <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:border-accent transition space-y-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-sm font-bold text-gray-900">{{ w.name }}</h3>
+                                {% if w.verified %}
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
+                                    &#10003; Verified
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">{{ w.address }}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-extrabold text-accent block">{{ dist }} km</span>
+                            <span class="text-[11px] font-semibold text-amber-600">★ {{ w.rating }} / 5.0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-100">
+                        <span class="font-mono text-gray-600">Phone: {{ w.contact }}</span>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination={{ w.lat }},{{ w.lng }}"
+                           target="_blank" rel="noopener noreferrer"
+                           class="text-accent font-semibold hover:underline flex items-center">
+                            Navigate &rarr;
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Suppliers Column -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+                <h2 class="text-base font-bold text-primary flex items-center">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-600 mr-2"></span> Parts Distributors &amp; Suppliers
+                </h2>
+                <span class="text-xs text-gray-400">{{ suppliers|length }} distributors</span>
+            </div>
+
+            <div class="space-y-3">
+                {% for item in suppliers %}
+                {% set s = item[0] %}
+                {% set dist = item[1] %}
+                <div class="bg-white rounded-lg p-5 shadow-sm border border-gray-200 hover:border-green-400 transition space-y-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900">{{ s.name }}</h3>
+                            <p class="text-xs text-gray-500 mt-1">{{ s.address }}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-extrabold text-green-700 block">{{ dist }} km</span>
+                            <span class="text-[10px] text-gray-400">Hub Distance</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs pt-2 border-t border-gray-100">
+                        <span class="font-mono text-gray-600">Phone: {{ s.contact }}</span>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination={{ s.lat }},{{ s.lng }}"
+                           target="_blank" rel="noopener noreferrer"
+                           class="text-green-700 font-semibold hover:underline flex items-center">
+                            Directions &rarr;
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const workshopsData = {{ workshops_json | safe }};
+    const suppliersData = {{ suppliers_json | safe }};
+    const defaultLat = {{ user_lat }};
+    const defaultLng = {{ user_lng }};
+
+    function initMap(lat, lng) {
+        const map = L.map('map').setView([lat, lng], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        // User position marker (Red circle)
+        L.circleMarker([lat, lng], {
+            radius: 8,
+            color: '#dc2626',
+            fillColor: '#dc2626',
+            fillOpacity: 0.9,
+            weight: 2
+        }).addTo(map).bindPopup('<b>Your Current Location</b><br>(Reference Point)').openPopup();
+
+        // Workshop Markers (Standard Blue)
+        workshopsData.forEach(w => {
+            L.marker([w.lat, w.lng]).addTo(map).bindPopup(`
+                <div style="font-size:12px; line-height:1.4;">
+                    <b style="color:#1e293b;">${w.name}</b><br>
+                    <span style="color:#2563eb;">${w.verified ? '&#10003; Verified Workshop' : 'Workshop'}</span><br>
+                    Rating: <b>${w.rating} / 5.0</b><br>
+                    ${w.address}<br>
+                    <span style="color:#64748b;">Phone: ${w.contact}</span><br>
+                    <b>Distance:</b> ${w.distance} km<br>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${w.lat},${w.lng}" target="_blank" style="color:#2563eb; font-weight:bold;">Get Directions &rarr;</a>
+                </div>
+            `);
+        });
+
+        // Supplier Markers (Custom Green Icon)
+        const greenIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        suppliersData.forEach(s => {
+            L.marker([s.lat, s.lng], { icon: greenIcon }).addTo(map).bindPopup(`
+                <div style="font-size:12px; line-height:1.4;">
+                    <b style="color:#065f46;">${s.name}</b><br>
+                    <span style="color:#047857;">Spare Parts Distributor</span><br>
+                    ${s.address}<br>
+                    <span style="color:#64748b;">Phone: ${s.contact}</span><br>
+                    <b>Distance:</b> ${s.distance} km<br>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank" style="color:#047857; font-weight:bold;">Get Directions &rarr;</a>
+                </div>
+            `);
+        });
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => initMap(pos.coords.latitude, pos.coords.longitude),
+            (err) => {
+                console.warn("Geolocation denied or unavailable; defaulting to Cherthala coordinates:", err);
+                initMap(defaultLat, defaultLng);
+            },
+            { timeout: 5000 }
+        );
+    } else {
+        initMap(defaultLat, defaultLng);
+    }
+</script>
+{% endblock %}
